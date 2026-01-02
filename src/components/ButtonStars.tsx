@@ -65,7 +65,7 @@ export const ButtonStars = () => {
   useLayoutEffect(() => {
     if (!size.width || !size.height) return;
 
-    const maxOrbit = 255;
+    const maxOrbit = 200;
     const MIN_ORBIT = maxOrbit * 1.2;
     const MAX_ORBIT = maxOrbit * 0.6;
 
@@ -78,10 +78,10 @@ export const ButtonStars = () => {
         x: size.width / 2,
         y: size.height / 2,
         orbit: orbit,
-        hoverOrbit: orbit + (MAX_ORBIT - orbit) * (0.3 + 0.4 * Math.random()),
+        hoverOrbit: orbit + (MAX_ORBIT - orbit) * (0.5 + 0.4 * Math.random()),
         explodeOrbit: orbit + Math.random() * maxOrbit * 2,
         currentOrbit: orbit,
-        speed: ((Math.random() * 1.5 + 0.3) * Math.PI) / 180,
+        speed: ((Math.random() * 1.5 + 0.3) * Math.PI) / 90,
         rotation: Math.random() * Math.PI * 3,
         color: `rgba(255,255,255,${0.2 + 0.6 * (orbit / MAX_ORBIT)})`,
       };
@@ -121,7 +121,7 @@ export const ButtonStars = () => {
 
         ctx.beginPath();
         ctx.fillStyle = star.color;
-        ctx.arc(x, y, 0.9, 0, Math.PI * 2);
+        ctx.arc(x, y, 0.8, 0, Math.PI * 2);
         ctx.fill();
       });
       frameId = requestAnimationFrame(animate);
@@ -143,7 +143,7 @@ export const ButtonStars = () => {
     <div className="relative w-screen h-screen bg-zinc-900 overflow-hidden flex items-center justify-center group">
       <canvas
         ref={canvasRef}
-        className="absolute"
+        className="absolute w-full h-full"
         width={size.width}
         height={size.height}
       />
@@ -152,7 +152,7 @@ export const ButtonStars = () => {
         onClick={handleClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative z-10 w-full h-full rounded-full text-white tracking-widest transition-all duration-700 hover:scale-105 hover:border-white"
+        className="relative z-10 w-1/2 h-1/2 rounded-full text-white tracking-widest transition-all duration-700  hover:border-white"
       >
         <span className="opacity-70 hover:opacity-100 transition">
           SEE STARS
