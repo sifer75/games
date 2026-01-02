@@ -140,7 +140,7 @@ export const ButtonStars = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen bg-zinc-900 overflow-hidden flex items-center justify-center group">
+    <div className="relative w-screen h-screen bg-zinc-900 overflow-hidden flex items-center justify-center">
       <canvas
         ref={canvasRef}
         className="absolute w-full h-full"
@@ -152,11 +152,11 @@ export const ButtonStars = () => {
         onClick={handleClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative z-10 w-1/2 h-1/2 rounded-full text-white tracking-widest transition-all duration-700  hover:border-white"
+        className="relative z-10 w-1/2 h-1/2 overflow-hidden group rounded-full text-white tracking-widest transition-all duration-700  hover:border-white "
       >
-        <span className="opacity-70 hover:opacity-100 transition">
+        <div className="opacity-70 group-hover:opacity-100 transition group-hover:scale-120">
           SEE STARS
-        </span>
+        </div>
       </button>
     </div>
   );
