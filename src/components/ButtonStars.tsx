@@ -7,7 +7,9 @@ type Star = {
   x: number;
   y: number;
   orbit: number;
+  hoverOrbit: number;
   explodeOrbit: number;
+  currentOrbit: number;
   speed: number;
   rotation: number;
   color: string;
@@ -18,18 +20,13 @@ export const ButtonStars = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const starsRef = useRef<Star[]>([]);
-  const explosionProgress = useRef(0);
-  const hoverProgress = useRef(0);
 
   const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [size, setSize] = useState<sizeType>({ width: 0, height: 0 });
 
-  const maxOrbit = 255;
+  // Resize du boutton
 
-  /* =======================
-     ResizeObserver bouton
-  ======================= */
   useLayoutEffect(() => {
     if (!buttonRef.current) return;
 
@@ -42,14 +39,15 @@ export const ButtonStars = () => {
     return () => observer.disconnect();
   }, []);
 
-  /* =======================
-     Canvas + Retina
-  ======================= */
+  // Canvas + Retina
+
   useLayoutEffect(() => {
     if (!canvasRef.current) return;
 
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
+
+    // calcul du ratio pour les écrans retina
 
     const scale = window.devicePixelRatio || 1;
 
@@ -62,117 +60,83 @@ export const ButtonStars = () => {
     ctxRef.current = ctx;
   }, [size.width, size.height]);
 
-  /* =======================
-     Création des étoiles
-  ======================= */
+  // Création des étoiles
+
   useLayoutEffect(() => {
     if (!size.width || !size.height) return;
 
-    const centerX = size.width / 2;
-    const centerY = size.height / 2;
+    const maxOrbit = 255;
+    const MIN_ORBIT = maxOrbit * 1.2;
+    const MAX_ORBIT = maxOrbit * 0.6;
 
-    const MIN_ORBIT = maxOrbit * 0.6;
-    const MAX_ORBIT = maxOrbit * 1.2;
-
-    starsRef.current = Array.from({ length: 400 }, (_, id) => {
-      const t = Math.random();
-      const orbit = MIN_ORBIT + Math.pow(t, 0.35) * (MAX_ORBIT - MIN_ORBIT);
-
-      const explodeOrbit = orbit + Math.random() * maxOrbit * 3.5;
-      const rotation = Math.random() * Math.PI * 2;
+    starsRef.current = Array.from({ length: 3000 }, (_, id) => {
+      const orbit =
+        MIN_ORBIT + Math.pow(Math.random(), 0.35) * (MAX_ORBIT - MIN_ORBIT);
 
       return {
         id,
-        x: centerX,
-        y: centerY,
-        orbit,
-        explodeOrbit,
+        x: size.width / 2,
+        y: size.height / 2,
+        orbit: orbit,
+        hoverOrbit: orbit + (MAX_ORBIT - orbit) * (0.3 + 0.4 * Math.random()),
+        explodeOrbit: orbit + Math.random() * maxOrbit * 2,
+        currentOrbit: orbit,
         speed: ((Math.random() * 1.5 + 0.3) * Math.PI) / 180,
-        rotation,
-        color: `rgba(255,255,255,${0.3 + 0.7 * (orbit / MAX_ORBIT)})`,
+        rotation: Math.random() * Math.PI * 3,
+        color: `rgba(255,255,255,${0.2 + 0.6 * (orbit / MAX_ORBIT)})`,
       };
     });
   }, [size.width, size.height]);
 
-  /* =======================
-     Animation
-  ======================= */
+  // position des 3 états : normal, hover, click
+
   useLayoutEffect(() => {
     if (!ctxRef.current) return;
-
     const ctx = ctxRef.current;
     let frameId: number;
 
-    const centerX = size.width / 2;
-    const centerY = size.height / 2;
-
-    const easeInOutCubic = (t: number) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-
     const animate = () => {
-      ctx.fillStyle = "rgba(25,25,25,0.25)";
-      ctx.fillRect(0, 0, size.width, size.height);
+      let targetOrbit: number;
 
-      // Explosion progress
-      if (expanded) {
-        explosionProgress.current = Math.min(
-          explosionProgress.current + 0.025,
-          1
-        );
-      } else {
-        explosionProgress.current = Math.max(
-          explosionProgress.current - 0.02,
-          0
-        );
-      }
-      const eased = easeInOutCubic(explosionProgress.current);
-
-      // Hover progress
-      if (hovered && explosionProgress.current === 0) {
-        hoverProgress.current = Math.min(hoverProgress.current + 0.04, 1);
-      } else {
-        hoverProgress.current = Math.max(hoverProgress.current - 0.04, 0);
-      }
-      const hoverEased = easeOut(hoverProgress.current);
+      ctx.clearRect(0, 0, size.width, size.height);
 
       starsRef.current.forEach((star) => {
+        if (expanded) {
+          targetOrbit = star.explodeOrbit;
+        } else if (hovered) {
+          targetOrbit = star.hoverOrbit;
+        } else {
+          targetOrbit = star.orbit;
+        }
+
+        // animation des transitions entre les états
+
+        star.currentOrbit += (targetOrbit - star.currentOrbit) * 0.08;
         star.rotation += star.speed;
 
-        let baseOrbit = star.orbit;
+        // dessin de l'étoile
 
-        // Smooth hover applied
-        baseOrbit *= 1 + 0.2 * hoverEased;
-
-        const orbit = baseOrbit + (star.explodeOrbit - baseOrbit) * eased;
-
-        const x = centerX + Math.cos(star.rotation) * orbit;
-        const y = centerY + Math.sin(star.rotation) * orbit;
+        const x = size.width / 2 + Math.cos(star.rotation) * star.currentOrbit;
+        const y = size.height / 2 + Math.sin(star.rotation) * star.currentOrbit;
 
         ctx.beginPath();
         ctx.fillStyle = star.color;
         ctx.arc(x, y, 0.9, 0, Math.PI * 2);
         ctx.fill();
-
-        star.x = x;
-        star.y = y;
       });
-
       frameId = requestAnimationFrame(animate);
     };
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, [hovered, expanded, size.width, size.height]);
+  }, [expanded, hovered, size]);
 
-  /* =======================
-     Click explosion
-  ======================= */
+  // Click explosion
+
   const handleClick = () => {
     if (expanded) return;
     setExpanded(true);
-    setTimeout(() => setExpanded(false), 1200);
+    setTimeout(() => setExpanded(false), 3000);
   };
 
   return (
