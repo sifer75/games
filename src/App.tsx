@@ -7,6 +7,7 @@ import { PageWrapper } from "./pages/PageWrapper";
 import { FadingSkills } from "./components/FadingSkills";
 import { Layering } from "./components/Layering";
 import { ButtonStars } from "./components/ButtonStars";
+import { Icons } from "./components/Icons";
 function App() {
   return (
     <IntroProvider>
@@ -31,6 +32,11 @@ const AppContent = () => {
     }
   }, [introDone]);
 
+  useEffect(() => {
+    const canScroll = introDone && pageTransitionDone && fadeIn;
+    document.body.style.overflowY = canScroll ? "auto" : "hidden";
+  }, [introDone, pageTransitionDone, fadeIn]);
+
   return !introDone ? (
     <div className="bg-red-500 w-screen h-screen overflow-hidden flex justify-center items-center">
       <OpenFirstScreen />
@@ -43,17 +49,13 @@ const AppContent = () => {
           handlePageTransitionDone={handlePageTransitionDone}
           pageTransitionDone={pageTransitionDone}
         >
+          <Icons />
           <MyHeadline />
           <FadingSkills />
         </Layering>
       </PageWrapper>
       <PageWrapper id="SecondPage">
-        <div className="h-full w-full bg-cyan-600 flex justify-center items-center">
-          <ButtonStars />
-          {/* <button className="bg-white text-black px-4 py-2 rounded-md cursor-auto">
-            <span className="font-pro">Commençons</span>
-          </button> */}
-        </div>
+        <ButtonStars />
       </PageWrapper>
     </>
   );

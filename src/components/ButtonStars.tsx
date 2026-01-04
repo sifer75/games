@@ -152,7 +152,7 @@ export const ButtonStars = () => {
         onClick={handleClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative z-10 w-1/2 h-1/2 overflow-hidden group rounded-full text-white tracking-widest transition-all duration-700  hover:border-white "
+        className="relative z-10 w-1/2 h-1/2 overflow-hidden group rounded-full text-white tracking-widest transition-all duration-700 hover:border-white"
       >
         <div className="opacity-70 group-hover:opacity-100 transition group-hover:scale-120">
           SEE STARS
