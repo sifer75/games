@@ -1,17 +1,15 @@
-import type { ReactNode, TransitionEvent } from "react";
+import type { ReactNode } from "react";
 
 interface LayeringProps {
   children: ReactNode;
   fadeIn: boolean;
-  pageTransitionDone: boolean;
-  handlePageTransitionDone: (e: TransitionEvent<HTMLDivElement>) => void;
+  contentVisible: boolean;
 }
 
 export const Layering = ({
   children,
   fadeIn,
-  handlePageTransitionDone,
-  pageTransitionDone,
+  contentVisible,
 }: LayeringProps) => {
   return (
     <div>
@@ -38,12 +36,11 @@ export const Layering = ({
         style={{
           transform: fadeIn ? "translate(0)" : "translate(100vw, 100vh)",
         }}
-        onTransitionEnd={handlePageTransitionDone}
       >
         <div
           className={`${
-            pageTransitionDone ? "opacity-100" : "opacity-0"
-          } transition-opacity duration-400 delay-500 flex flex-col h-full w-full ease-in-out justify-between px-16 py-10 pointer-events-none`}
+            contentVisible ? "opacity-100" : "opacity-0"
+          } transition-opacity duration-400 delay-500 flex flex-col h-full w-full ease-in-out justify-between px-16 py-10`}
         >
           {children}
         </div>

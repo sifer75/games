@@ -2,7 +2,7 @@ import "./App.css";
 import { OpenFirstScreen } from "./pages/OpenFirstScreen";
 import { IntroProvider } from "./context/IntroProvider";
 import { useIntro } from "./context/useIntro";
-import { useEffect, useState, type TransitionEvent } from "react";
+import { useEffect, useState } from "react";
 import { PageWrapper } from "./pages/PageWrapper";
 import { FadingSkills } from "./components/FadingSkills";
 import { Layering } from "./components/Layering";
@@ -19,23 +19,33 @@ function App() {
 const AppContent = () => {
   const { introDone } = useIntro();
   const [fadeIn, setFadeIn] = useState(false);
-  const [pageTransitionDone, setPageTransitionDone] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
+  const [animationsDone, setAnimationsDone] = useState(false);
+  const PANEL_DURATION = 3500;
+  const FADE_DURATION = 2000;
 
-  const handlePageTransitionDone = (e: TransitionEvent<HTMLDivElement>) => {
-    if (e.propertyName === "transform") {
-      setPageTransitionDone(true);
-    }
-  };
   useEffect(() => {
-    if (introDone) {
-      requestAnimationFrame(() => setFadeIn(true));
-    }
+    if (!introDone) return;
+
+    requestAnimationFrame(() => setFadeIn(true));
+
+    const showContent = setTimeout(() => {
+      setContentVisible(true);
+    }, PANEL_DURATION);
+
+    const enableScrolling = setTimeout(() => {
+      setAnimationsDone(true);
+    }, PANEL_DURATION + FADE_DURATION);
+
+    return () => {
+      clearTimeout(showContent);
+      clearTimeout(enableScrolling);
+    };
   }, [introDone]);
 
   useEffect(() => {
-    const canScroll = introDone && pageTransitionDone && fadeIn;
-    document.body.style.overflowY = canScroll ? "auto" : "hidden";
-  }, [introDone, pageTransitionDone, fadeIn]);
+    document.body.style.overflowY = animationsDone ? "auto" : "hidden";
+  }, [ animationsDone]);
 
   return !introDone ? (
     <div className="bg-red-500 w-screen h-screen overflow-hidden flex justify-center items-center">
@@ -46,8 +56,7 @@ const AppContent = () => {
       <PageWrapper id="Accueil">
         <Layering
           fadeIn={fadeIn}
-          handlePageTransitionDone={handlePageTransitionDone}
-          pageTransitionDone={pageTransitionDone}
+          contentVisible={contentVisible}
         >
           <Icons />
           <MyHeadline />
@@ -80,5 +89,3 @@ const MyHeadline = () => (
     </div> */}
   </div>
 );
-
-// import throttle from "throttleit";
