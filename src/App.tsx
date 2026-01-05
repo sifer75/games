@@ -8,6 +8,7 @@ import { FadingSkills } from "./components/FadingSkills";
 import { Layering } from "./components/Layering";
 import { ButtonStars } from "./components/ButtonStars";
 import { Icons } from "./components/Icons";
+import CyclingSkills from "./components/CyclingSkills";
 function App() {
   return (
     <IntroProvider>
@@ -45,7 +46,7 @@ const AppContent = () => {
 
   useEffect(() => {
     document.body.style.overflowY = animationsDone ? "auto" : "hidden";
-  }, [ animationsDone]);
+  }, [animationsDone]);
 
   return !introDone ? (
     <div className="bg-red-500 w-screen h-screen overflow-hidden flex justify-center items-center">
@@ -54,10 +55,7 @@ const AppContent = () => {
   ) : (
     <>
       <PageWrapper id="Accueil">
-        <Layering
-          fadeIn={fadeIn}
-          contentVisible={contentVisible}
-        >
+        <Layering fadeIn={fadeIn} contentVisible={contentVisible}>
           <Icons />
           <MyHeadline />
           <FadingSkills />
@@ -83,8 +81,8 @@ const MyHeadline = () => (
         </div>
       ))}
     </h1>
-    {/* <CyclingSkills />
-    <div className="w-fit h-fit z-20 mt-5 sm:hidden">
+    <CyclingSkills />
+    {/* <div className="w-fit h-fit z-20 mt-5 sm:hidden">
       <Links />
     </div> */}
   </div>
