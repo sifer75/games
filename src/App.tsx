@@ -23,7 +23,7 @@ const AppContent = () => {
   const [contentVisible, setContentVisible] = useState(false);
   const [animationsDone, setAnimationsDone] = useState(false);
   const PANEL_DURATION = 3500;
-  const FADE_DURATION = 2000;
+  const FADE_DURATION = 1000;
 
   useEffect(() => {
     if (!introDone) return;

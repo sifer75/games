@@ -1,53 +1,61 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { logos } from "../lib/icons.utils";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { useEffect, useRef, useState } from "react";
-
-const shuffleArray = (array: IconDefinition[]) => {
-  return array.sort(() => Math.random() - 0.5);
-};
+import { type IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const Icons = () => {
-  const [linesCount, setLinesCount] = useState(35);
   const iconsRef = useRef<HTMLDivElement>(null);
+  const [grid, setGrid] = useState<{ rows: number; cols: number }>({
+    rows: 0,
+    cols: 0,
+  });
+
   const iconSize = 64; // 4x en px
   const gap = 28; // gap-7
   const iconWidthGap = iconSize + gap;
 
+  const [shuffledIcons] = useState<IconDefinition[]>(() =>
+    [...logos].sort(() => Math.random() - 0.5),
+  );
+
   useEffect(() => {
-    if (!iconsRef.current) return;
-
-    const observer = new ResizeObserver(() => {
-      const heightLines = Math.ceil(iconsRef.current!.clientHeight / iconSize);
-      setLinesCount(heightLines);
-    });
-
-    observer.observe(iconsRef.current);
-    return () => observer.disconnect();
+    const calculateGrid = () => {
+      if (!iconsRef.current) return;
+      const { width, height } = iconsRef.current!.getBoundingClientRect();
+      const cols = Math.floor((width + gap) / iconWidthGap);
+      const rows = Math.floor((height + gap) / iconWidthGap);
+      setGrid({ rows, cols });
+    };
+    calculateGrid();
+    window.addEventListener("resize", calculateGrid);
+    return () => window.removeEventListener("resize", calculateGrid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderIcons = () => {
-    const shuffleLogos = shuffleArray([...logos]);
-    const iconsPerRow = Math.ceil(window.innerWidth / iconWidthGap);
-
-    return Array.from({ length: iconsPerRow }, (_, index) => (
-      <FontAwesomeIcon
-        key={index}
-        icon={shuffleLogos[index % shuffleLogos.length]}
-        size="4x"
-        className="i text-gray-900 -rotate-45"
-      />
-    ));
-  };
+  const lines = useMemo(() => {
+    return Array.from({ length: grid.rows }).map(() =>
+      Array.from({ length: grid.cols }).map(() => {
+        const randomIndex = Math.floor(Math.random() * shuffledIcons.length);
+        return shuffledIcons[randomIndex];
+      }),
+    );
+  }, [grid, shuffledIcons]);
 
   return (
     <div
-      className="w-screen h-screen top-0 left-0 pt-2 inset-0 z-0 pointer-events-auto flex absolute items-center justify-center flex-col gap-7 overflow-hidden"
       ref={iconsRef}
+      className="w-screen h-screen absolute inset-0 flex flex-col gap-7 overflow-hidden p-4"
     >
-      {Array.from({ length: linesCount }).map((_, index) => (
-        <div key={index} className="w-full flex gap-7">
-          {renderIcons()}
+      {lines.map((line, i) => (
+        <div key={i} className="w-full flex gap-7">
+          {line.map((icon, j) => (
+            <FontAwesomeIcon
+              key={j}
+              icon={icon}
+              size="4x"
+              className="text-gray-900 -rotate-45 pointer-events-auto i"
+            />
+          ))}
         </div>
       ))}
     </div>
