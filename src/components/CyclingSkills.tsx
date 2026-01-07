@@ -2,10 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const softSkills = [
   "autodidacte",
+  "j'adoreLeCafé",
+
   "polyvalent",
   "persévérant",
-  "soucieux",
-  "efficace",
+  "leGoat",
   "passionné",
 ] as const;
 
