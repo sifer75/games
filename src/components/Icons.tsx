@@ -22,8 +22,8 @@ export const Icons = () => {
     const calculateGrid = () => {
       if (!iconsRef.current) return;
       const { width, height } = iconsRef.current!.getBoundingClientRect();
-      const cols = Math.floor((width + gap) / iconWidthGap);
-      const rows = Math.floor((height + gap) / iconWidthGap);
+      const cols = Math.floor(width / iconWidthGap) - 2;
+      const rows = Math.floor(height / iconWidthGap);
       setGrid({ rows, cols });
     };
     calculateGrid();
